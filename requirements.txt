@@ -1,0 +1,24 @@
+# Crypto Trading Automation - Dependencies
+# Core
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.11.0
+
+# Technical Analysis
+ta-lib>=0.4.28
+pandas-ta>=0.3.14b
+
+# Data Handling
+pyyaml>=6.0
+python-dateutil>=2.8.2
+
+# Visualization (optional, for analysis)
+matplotlib>=3.7.0
+plotly>=5.15.0
+
+# Data fetching (for future API integration)
+ccxt>=4.0.0
+requests>=2.31.0
+
+# Testing
+pytest>=7.4.0

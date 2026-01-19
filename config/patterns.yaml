@@ -1,0 +1,452 @@
+# ============================================================
+# Crypto Trading Pattern Configuration
+# 코인 차트 분석 패턴 및 하이퍼파라미터 정의
+# ============================================================
+
+# 전역 설정
+global:
+  min_data_points: 100          # 최소 필요 데이터 포인트
+  lookback_period: 200          # 기본 lookback 기간
+  signal_threshold: 0.5         # 신호 임계값 (-1 ~ 1)
+  
+# ============================================================
+# 1. 추세 지표 (Trend Indicators)
+# ============================================================
+trend_indicators:
+  # 단순 이동평균 (Simple Moving Average)
+  sma:
+    enabled: true
+    weight: 1.0
+    params:
+      short_period: 20
+      medium_period: 50
+      long_period: 200
+    signals:
+      golden_cross: 1.0          # 단기 > 장기 교차 → 매수
+      death_cross: -1.0          # 단기 < 장기 교차 → 매도
+      price_above_ma: 0.5        # 가격이 MA 위
+      price_below_ma: -0.5       # 가격이 MA 아래
+
+  # 지수 이동평균 (Exponential Moving Average)
+  ema:
+    enabled: true
+    weight: 1.2
+    params:
+      short_period: 12
+      medium_period: 26
+      long_period: 50
+    signals:
+      golden_cross: 1.0
+      death_cross: -1.0
+      trend_strength_multiplier: 0.3
+
+  # MACD (Moving Average Convergence Divergence)
+  macd:
+    enabled: true
+    weight: 1.5
+    params:
+      fast_period: 12
+      slow_period: 26
+      signal_period: 9
+    signals:
+      bullish_crossover: 1.0     # MACD가 Signal 위로 교차
+      bearish_crossover: -1.0    # MACD가 Signal 아래로 교차
+      histogram_positive: 0.3    # 히스토그램 양수
+      histogram_negative: -0.3   # 히스토그램 음수
+      divergence_multiplier: 0.5 # 다이버전스 감지 시 추가 가중치
+
+  # ADX (Average Directional Index) - 추세 강도
+  adx:
+    enabled: true
+    weight: 0.8
+    params:
+      period: 14
+      strong_trend_threshold: 25
+      weak_trend_threshold: 20
+    signals:
+      strong_uptrend: 0.5        # ADX > 25 & +DI > -DI
+      strong_downtrend: -0.5     # ADX > 25 & -DI > +DI
+      no_trend: 0.0              # ADX < 20
+
+# ============================================================
+# 2. 모멘텀 지표 (Momentum Indicators)
+# ============================================================
+momentum_indicators:
+  # RSI (Relative Strength Index)
+  rsi:
+    enabled: true
+    weight: 1.3
+    params:
+      period: 14
+      overbought: 70
+      oversold: 30
+      extreme_overbought: 80
+      extreme_oversold: 20
+    signals:
+      oversold_buy: 1.0          # RSI < 30 → 매수 신호
+      overbought_sell: -1.0      # RSI > 70 → 매도 신호
+      extreme_oversold: 1.5      # RSI < 20 → 강한 매수
+      extreme_overbought: -1.5   # RSI > 80 → 강한 매도
+      neutral_zone: 0.0          # 30 < RSI < 70
+      divergence_multiplier: 0.7
+
+  # Stochastic Oscillator
+  stochastic:
+    enabled: true
+    weight: 1.0
+    params:
+      k_period: 14
+      d_period: 3
+      smooth_k: 3
+      overbought: 80
+      oversold: 20
+    signals:
+      oversold_crossover: 1.0    # K가 D를 상향 돌파 (과매도 구간)
+      overbought_crossover: -1.0 # K가 D를 하향 돌파 (과매수 구간)
+      bullish_divergence: 0.8
+      bearish_divergence: -0.8
+
+  # Williams %R
+  williams_r:
+    enabled: true
+    weight: 0.7
+    params:
+      period: 14
+      overbought: -20
+      oversold: -80
+    signals:
+      oversold: 0.8
+      overbought: -0.8
+
+  # CCI (Commodity Channel Index)
+  cci:
+    enabled: true
+    weight: 0.8
+    params:
+      period: 20
+      overbought: 100
+      oversold: -100
+    signals:
+      oversold: 0.7
+      overbought: -0.7
+      zero_cross_up: 0.3
+      zero_cross_down: -0.3
+
+# ============================================================
+# 3. 변동성 지표 (Volatility Indicators)
+# ============================================================
+volatility_indicators:
+  # Bollinger Bands
+  bollinger:
+    enabled: true
+    weight: 1.2
+    params:
+      period: 20
+      std_dev: 2.0
+      squeeze_threshold: 0.05    # 스퀴즈 감지 임계값
+    signals:
+      lower_band_touch: 0.8      # 하단 밴드 터치 → 매수 고려
+      upper_band_touch: -0.8     # 상단 밴드 터치 → 매도 고려
+      squeeze_breakout_up: 1.0   # 스퀴즈 후 상방 돌파
+      squeeze_breakout_down: -1.0 # 스퀴즈 후 하방 돌파
+      mean_reversion: 0.3        # 중앙선 회귀 신호
+
+  # ATR (Average True Range)
+  atr:
+    enabled: true
+    weight: 0.6
+    params:
+      period: 14
+      multiplier: 2.0            # 스톱로스 계산용
+    signals:
+      high_volatility_caution: -0.2  # 높은 변동성 주의
+      low_volatility_opportunity: 0.2 # 낮은 변동성 기회
+
+  # Keltner Channel
+  keltner:
+    enabled: true
+    weight: 0.7
+    params:
+      ema_period: 20
+      atr_period: 10
+      multiplier: 2.0
+    signals:
+      lower_band_touch: 0.6
+      upper_band_touch: -0.6
+      channel_breakout: 0.8
+
+# ============================================================
+# 4. 거래량 지표 (Volume Indicators)
+# ============================================================
+volume_indicators:
+  # OBV (On-Balance Volume)
+  obv:
+    enabled: true
+    weight: 0.9
+    params:
+      ma_period: 20
+    signals:
+      bullish_divergence: 0.7    # 가격 하락 but OBV 상승
+      bearish_divergence: -0.7   # 가격 상승 but OBV 하락
+      trend_confirmation: 0.4
+
+  # Volume MA
+  volume_ma:
+    enabled: true
+    weight: 0.8
+    params:
+      short_period: 10
+      long_period: 20
+      spike_threshold: 2.0       # 평균 대비 2배 이상
+    signals:
+      volume_spike_up: 0.5       # 거래량 급증 + 가격 상승
+      volume_spike_down: -0.5    # 거래량 급증 + 가격 하락
+      volume_dry_up: -0.2        # 거래량 급감 (추세 약화)
+
+  # MFI (Money Flow Index)
+  mfi:
+    enabled: true
+    weight: 0.9
+    params:
+      period: 14
+      overbought: 80
+      oversold: 20
+    signals:
+      oversold: 0.8
+      overbought: -0.8
+      divergence: 0.6
+
+  # VWAP (Volume Weighted Average Price)
+  vwap:
+    enabled: true
+    weight: 0.7
+    params:
+      period: 20
+    signals:
+      price_above_vwap: 0.4
+      price_below_vwap: -0.4
+
+# ============================================================
+# 5. 캔들스틱 패턴 (Candlestick Patterns)
+# ============================================================
+candlestick_patterns:
+  # 반전 패턴 (Reversal Patterns)
+  reversal:
+    weight: 1.4
+    patterns:
+      # 상승 반전 패턴
+      hammer:
+        enabled: true
+        signal: 0.8
+        description: "하락 추세 후 긴 아래꼬리, 작은 몸통"
+      inverted_hammer:
+        enabled: true
+        signal: 0.7
+        description: "하락 추세 후 긴 위꼬리, 작은 몸통"
+      bullish_engulfing:
+        enabled: true
+        signal: 1.0
+        description: "큰 양봉이 이전 음봉을 완전히 감싸는 패턴"
+      morning_star:
+        enabled: true
+        signal: 1.2
+        description: "3봉 패턴: 큰 음봉 → 작은 봉 → 큰 양봉"
+      piercing_line:
+        enabled: true
+        signal: 0.8
+        description: "음봉 후 양봉이 음봉 중간 이상 상승"
+      three_white_soldiers:
+        enabled: true
+        signal: 1.3
+        description: "연속 3개의 상승 양봉"
+      
+      # 하락 반전 패턴
+      hanging_man:
+        enabled: true
+        signal: -0.8
+        description: "상승 추세 후 긴 아래꼬리, 작은 몸통"
+      shooting_star:
+        enabled: true
+        signal: -0.9
+        description: "상승 추세 후 긴 위꼬리, 작은 몸통"
+      bearish_engulfing:
+        enabled: true
+        signal: -1.0
+        description: "큰 음봉이 이전 양봉을 완전히 감싸는 패턴"
+      evening_star:
+        enabled: true
+        signal: -1.2
+        description: "3봉 패턴: 큰 양봉 → 작은 봉 → 큰 음봉"
+      dark_cloud_cover:
+        enabled: true
+        signal: -0.8
+        description: "양봉 후 음봉이 양봉 중간 이하로 하락"
+      three_black_crows:
+        enabled: true
+        signal: -1.3
+        description: "연속 3개의 하락 음봉"
+
+  # 지속 패턴 (Continuation Patterns)
+  continuation:
+    weight: 0.9
+    patterns:
+      doji:
+        enabled: true
+        signal: 0.0              # 방향 미정, 컨텍스트 필요
+        description: "시가와 종가가 거의 같은 십자형"
+      spinning_top:
+        enabled: true
+        signal: 0.0
+        description: "작은 몸통, 양쪽 꼬리"
+      rising_three_methods:
+        enabled: true
+        signal: 0.7
+        description: "상승 지속 패턴"
+      falling_three_methods:
+        enabled: true
+        signal: -0.7
+        description: "하락 지속 패턴"
+
+# ============================================================
+# 6. 차트 패턴 (Chart Patterns)
+# ============================================================
+chart_patterns:
+  weight: 1.3
+  patterns:
+    # 반전 패턴
+    double_top:
+      enabled: true
+      signal: -1.0
+      lookback: 50
+      tolerance: 0.02            # 2% 오차 허용
+    double_bottom:
+      enabled: true
+      signal: 1.0
+      lookback: 50
+      tolerance: 0.02
+    head_and_shoulders:
+      enabled: true
+      signal: -1.2
+      lookback: 60
+    inverse_head_and_shoulders:
+      enabled: true
+      signal: 1.2
+      lookback: 60
+    
+    # 지속 패턴
+    ascending_triangle:
+      enabled: true
+      signal: 0.8
+      lookback: 40
+    descending_triangle:
+      enabled: true
+      signal: -0.8
+      lookback: 40
+    symmetrical_triangle:
+      enabled: true
+      signal: 0.0                # 방향 대기
+      lookback: 40
+    bull_flag:
+      enabled: true
+      signal: 0.9
+      lookback: 30
+    bear_flag:
+      enabled: true
+      signal: -0.9
+      lookback: 30
+
+# ============================================================
+# 7. 지지/저항 레벨 (Support/Resistance)
+# ============================================================
+support_resistance:
+  enabled: true
+  weight: 1.1
+  params:
+    lookback_period: 100
+    min_touches: 2               # 최소 터치 횟수
+    tolerance: 0.01              # 1% 오차 허용
+    pivot_lookback: 5            # 피벗 포인트 계산 lookback
+  signals:
+    support_bounce: 0.8
+    resistance_rejection: -0.8
+    support_break: -1.0
+    resistance_break: 1.0
+    approaching_support: 0.3
+    approaching_resistance: -0.3
+
+# ============================================================
+# 8. 피보나치 (Fibonacci)
+# ============================================================
+fibonacci:
+  enabled: true
+  weight: 0.9
+  params:
+    levels: [0.236, 0.382, 0.5, 0.618, 0.786]
+    extension_levels: [1.0, 1.272, 1.618, 2.0, 2.618]
+    tolerance: 0.005             # 0.5% 오차
+  signals:
+    retracement_support: 0.6
+    retracement_resistance: -0.6
+    golden_ratio_618: 0.8        # 0.618 레벨 특별 가중
+
+# ============================================================
+# 신호 조합 설정 (Signal Combination Settings)
+# ============================================================
+signal_combination:
+  method: "weighted_average"     # weighted_average, voting, ml_ensemble
+  
+  # 카테고리별 가중치
+  category_weights:
+    trend: 1.2
+    momentum: 1.0
+    volatility: 0.8
+    volume: 0.9
+    candlestick: 1.1
+    chart_pattern: 1.0
+    support_resistance: 1.0
+    fibonacci: 0.7
+  
+  # 신호 강도 임계값
+  thresholds:
+    strong_buy: 0.7
+    buy: 0.3
+    neutral_high: 0.1
+    neutral_low: -0.1
+    sell: -0.3
+    strong_sell: -0.7
+  
+  # 확인 설정 (Confirmation)
+  confirmation:
+    min_confirming_indicators: 3  # 최소 확인 지표 수
+    trend_alignment_bonus: 0.2    # 추세 방향 일치 시 보너스
+    volume_confirmation_bonus: 0.15
+
+# ============================================================
+# 리스크 관리 파라미터 (Risk Management)
+# ============================================================
+risk_management:
+  max_position_size: 0.1         # 최대 포지션 크기 (전체 자본의 %)
+  stop_loss:
+    default_percent: 0.02        # 2% 기본 손절
+    atr_multiplier: 2.0          # ATR 기반 손절
+    method: "atr"                # fixed, atr, swing_low
+  take_profit:
+    default_percent: 0.04        # 4% 기본 익절
+    risk_reward_ratio: 2.0       # 손익비
+    trailing_stop: true
+    trailing_percent: 0.01
+  
+# ============================================================
+# 타임프레임 설정 (Timeframe Settings)
+# ============================================================
+timeframes:
+  primary: "4h"                  # 주요 분석 타임프레임
+  confirmation: ["1h", "1d"]     # 확인용 타임프레임
+  weights:
+    "1m": 0.3
+    "5m": 0.5
+    "15m": 0.7
+    "1h": 1.0
+    "4h": 1.2
+    "1d": 1.5
+    "1w": 1.3
