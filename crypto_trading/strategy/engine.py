@@ -89,6 +89,14 @@ class StrategyEngine:
         # 리스크 파라미터
         self.risk_params = self.hp_manager.params.get('risk_management', {})
     
+    def _reinitialize(self):
+        """하이퍼파라미터 변경 후 모듈 재초기화"""
+        self.signal_generator = SignalGenerator(config=self.hp_manager.to_config_dict())
+        self.signal_combiner = SignalCombiner(
+            self.hp_manager.params.get('signal_combination', {})
+        )
+        self.risk_params = self.hp_manager.params.get('risk_management', {})
+    
     def analyze(self, df: pd.DataFrame) -> Dict[str, Any]:
         """
         종합 분석 수행

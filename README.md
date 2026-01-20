@@ -190,12 +190,46 @@ print(f"익절가: ${risk['take_profit']:,.2f}")
 print(f"권장 포지션 크기: {risk['position_size']:.1%}")
 ```
 
-## 🔮 향후 계획
+## 🔮 향후 계획 (TODO)
 
+### 🟢 완료됨
+- [x] 백테스팅 시스템 (`scripts/backtester.py`)
+- [x] Optuna 하이퍼파라미터 최적화 (`scripts/optuna_tuner.py`)
+- [x] RL Pair Trading 기본 구현 (`rl_trading/`)
+- [x] A2C 에이전트 (논문 기반) (`rl_trading/a2c_agent.py`)
+
+### 🟡 진행 중
+- [ ] 확장된 데이터 수집 (20개 코인, 2020-2026년 6년 데이터)
+
+### 🔴 예정 (TODO)
+
+#### 1. Online Learning 전환
+- [ ] 테스트셋 없이 실시간 학습하는 Online RL 구현
+- [ ] 시계열 순서대로 모킹 데이터 생성 및 학습
+- [ ] Rolling window 기반 지속적 학습
+
+#### 2. 경제 상황 반영 시스템
+- [ ] 경제 상황 4단계 분류 (저금리/고금리/확장기/침체기)
+- [ ] 내재 변동성 (Implied Volatility) 데이터 수집 및 반영
+- [ ] 시간에 따른 금리 데이터 수집 (Fed Funds Rate, 한국 기준금리)
+- [ ] SNS 데이터 수집 및 모니터링:
+  - [ ] Elon Musk 트위터/X 포스팅 수집
+  - [ ] Trump 소셜미디어 포스팅 수집
+  - [ ] 주요 인플루언서 발언 추적
+- [ ] 뉴스 데이터 수집 및 모니터링:
+  - [ ] Reuters, Bloomberg, CoinDesk 등 주요 언론사
+  - [ ] 실시간 뉴스 스크래핑
+  - [ ] 뉴스 감성 분석 (Sentiment Analysis)
+  - [ ] 데이터셋 자동 구축 파이프라인
+
+#### 3. 실거래 연동
 - [ ] 실시간 거래소 API 연동 (Binance, Upbit 등)
 - [ ] 자동 매매 실행
-- [ ] 백테스팅 시스템
+- [ ] 리스크 관리 시스템
+
+#### 4. 추가 개선
 - [ ] ML 기반 신호 최적화
+- [ ] LightGBM/XGBoost 분류 모델
 - [ ] 웹 대시보드
 
 ## 📜 라이선스
